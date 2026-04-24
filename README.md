@@ -67,14 +67,3 @@ docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 docker compose exec web python manage.py runserver 0.0.0.0:8000
 ```
-
-Observações e recomendações
-- Recomendo adicionar um `requirements.txt` e ajustar o `Dockerfile` para `COPY requirements.txt` + `pip install -r requirements.txt` em vez de instalar pacotes diretamente no `Dockerfile`.
-- Se preferir que o `healthcheck` do Postgres use variáveis, use uma expressão com default no `docker-compose` v2 (por exemplo `${POSTGRES_USER:-postgres}`), ou mantenha `postgres` como usuário fixo, que é mais simples.
-- A porta do Postgres no host está mapeada para `5433:5432`; conecte clientes locais ao host `localhost:5433`.
-
-Se quiser, eu posso:
-- gerar o arquivo `.env.example` automaticamente (posso fazer agora),
-- criar um `requirements.txt` e adaptar o `Dockerfile` para usá-lo.
-
-Fim.
