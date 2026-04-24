@@ -1,0 +1,42 @@
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app/src
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=${DEBUG:-1}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_NAME=${DB_NAME:-teste_sigaa}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+    depends_on:
+      - postgres
+    command: python manage.py runserver 0.0.0.0:8000
+
+  postgres:
+    image: postgres:16
+    env_file:
+      .env
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-teste_sigaa}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck: # Aqui é usado para testar se o serviço de banco está operacional, executando o pg_isready, conforme os tempos definidos pelas linhas abaixo
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
