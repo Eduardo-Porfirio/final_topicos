@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev &
 RUN pip install --upgrade pip
 RUN pip install Django==6.0.4
 RUN pip install psycopg2-binary
+RUN pip install python-dotenv
 
 # Copia o seu código para dentro do contêiner
 COPY . .
