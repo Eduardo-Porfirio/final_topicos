@@ -29,8 +29,8 @@ SECRET_KEY = 'django-insecure-exqs40(4cmtj4$(5w&no=)%&&lt5kric!ffw_+sb&3aepmu#&@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['']
-
+ALLOWED_HOSTS = ['*']
+APPEND_SLASH=False
 
 # Application definition
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'periodo_letivo.apps.PeriodoLetivoConfig',
+    'comp_curricular.apps.CompCurricularConfig',
 ]
 
 MIDDLEWARE = [

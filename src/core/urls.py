@@ -20,4 +20,5 @@ from django.urls import path,include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('periodo/', include('periodo_letivo.urls')),
+    path('comp_curricular/', include('comp_curricular.urls')),
 ]
