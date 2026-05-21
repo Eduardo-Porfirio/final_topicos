@@ -4,4 +4,5 @@ from . import views
 urlpatterns = [
     path('',views.comp_curricular_view),
     path('consultar/',views.consultar_comp_curricular_view),
+    path('inserir/',views.inserir_comp_curricular_view),
 ]
