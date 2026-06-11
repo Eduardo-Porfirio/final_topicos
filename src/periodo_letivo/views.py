@@ -36,7 +36,7 @@ def inserir_periodo_letivo_view(request):
             dtfinal=body.get('dtfinal'),
             status=body.get('status', False)
         )
-        #novo_periodo.save()
+        novo_periodo.save()
 
         return JsonResponse({"message": "Período Letivo inserido com sucesso.", "id": novo_periodo.idperiodoletivo})   
     return JsonResponse({
@@ -49,7 +49,7 @@ def encerrar_periodo_letivo_view(request, nome):
             return JsonResponse({'erro': 'Período Letivo não encontrado'}, status=404)
         periodo_letivo = PeriodoLetivo.objects.get(nmperiodo=nome, status=True)
         periodo_letivo.status = False
-        #periodo_letivo.save()
+        periodo_letivo.save()
         return JsonResponse({"message": "Período Letivo encerrado com sucesso."})
     return JsonResponse({
         'erro': 'Método não permitido'}, status=405)      
@@ -61,7 +61,7 @@ def inicia_periodo_letivo_view(request, nome):
             return JsonResponse({'erro': 'Período Letivo não encontrado'}, status=404)
         periodo_letivo = PeriodoLetivo.objects.get(nmperiodo=nome, status=False)
         periodo_letivo.status = True
-        #periodo_letivo.save()
+        periodo_letivo.save()
         return JsonResponse({"message": "Período Letivo iniciado com sucesso."})
     return JsonResponse({
         'erro': 'Método não permitido'}, status=405) 

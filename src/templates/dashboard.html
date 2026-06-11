@@ -3,14 +3,22 @@
 {% block title %}Dashboard - Gestão Acadêmica{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     
     <!-- Card Períodos -->
     <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
         <h2 class="text-xl font-bold mb-2 text-gray-800">Períodos Letivos</h2>
         <p class="text-3xl font-semibold text-blue-600">{{ total_periodos }}</p>
         <p class="text-gray-500 text-sm">Cadastrados no sistema</p>
-        <a href="#" class="mt-4 inline-block text-blue-500 hover:underline">Ver todos &rarr;</a>
+        <a href="{% url 'periodo_letivo_view' %}" class="mt-4 inline-block text-blue-500 hover:underline">Ver todos &rarr;</a>
+    </div>
+
+    <!-- Card Componentes -->
+    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-500">
+        <h2 class="text-xl font-bold mb-2 text-gray-800">Componentes</h2>
+        <p class="text-3xl font-semibold text-purple-600">{{ total_componentes }}</p>
+        <p class="text-gray-500 text-sm">Disciplinas cadastradas</p>
+        <a href="{% url 'comp_curricular_view' %}" class="mt-4 inline-block text-purple-500 hover:underline">Ver todos &rarr;</a>
     </div>
 
     <!-- Card Turmas -->
@@ -26,7 +34,7 @@
         <h2 class="text-xl font-bold mb-2 text-gray-800">Notícias</h2>
         <p class="text-3xl font-semibold text-yellow-600">{{ total_noticias }}</p>
         <p class="text-gray-500 text-sm">Publicações recentes</p>
-        <a href="#" class="mt-4 inline-block text-yellow-500 hover:underline">Gerenciar &rarr;</a>
+        <a href="{% url 'consultar_todas_noticias' %}" class="mt-4 inline-block text-yellow-500 hover:underline">Gerenciar &rarr;</a>
     </div>
 
 </div>
