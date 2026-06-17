@@ -133,3 +133,6 @@ STATIC_URL = "static/"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "login"
 LOGIN_URL = "login"
+
+# Configurações do Bot do Telegram
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")

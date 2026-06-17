@@ -1,5 +1,32 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from turma.models import Turma
+
+class TelegramSettings(models.Model):
+    """
+    Modelo Singleton para armazenar configurações globais da API do Telegram.
+    Sempre existirá apenas 1 registro desta tabela.
+    """
+    bot_token = models.CharField(max_length=255, blank=True, null=True, help_text="Token da API fornecido pelo BotFather")
+    data_atualizacao = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk and TelegramSettings.objects.exists():
+            # Se já existir um registro e estamos tentando criar um novo, atualiza o existente
+            return TelegramSettings.objects.first().save(*args, **kwargs)
+        super(TelegramSettings, self).save(*args, **kwargs)
+
+    @classmethod
+    def get_settings(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return "Configurações da API do Telegram"
+
+    class Meta:
+        verbose_name = "Configuração do Telegram"
+        verbose_name_plural = "Configurações do Telegram"
 
 class TelegramGroup(models.Model):
     """

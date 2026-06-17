@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações Telegram - Gestão Acadêmica{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200 mt-8">
+    <div class="mb-6 flex justify-between items-center border-b pb-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Configurações de Integração</h2>
+            <p class="text-gray-500 text-sm mt-1">Gerencie o acesso à API do Telegram BotFather</p>
+        </div>
+        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.756 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-400{% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-6">
+            <label for="{{ form.bot_token.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.bot_token.label }}</label>
+            {{ form.bot_token }}
+            {% if form.bot_token.help_text %}
+                <p class="text-xs text-gray-500 mt-2">{{ form.bot_token.help_text }}</p>
+            {% endif %}
+            {% if form.bot_token.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ form.bot_token.errors.0 }}</p>
+            {% endif %}
+            
+            {% if form.instance.bot_token %}
+            <p class="text-xs text-green-600 font-semibold mt-2 flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                Um token já está salvo. Deixe em branco se não quiser alterá-lo.
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-6 text-sm text-gray-600">
+            <strong>Nota de Segurança:</strong> O token inserido aqui tem precedência sobre o configurado no arquivo <code>.env</code>. Ele será utilizado pelo sistema para enviar e receber todas as requisições da API.
+        </div>
+
+        <div class="flex items-center justify-end">
+            <button type="submit" class="bg-green-700 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-800 transition duration-300">
+                Salvar Configurações
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

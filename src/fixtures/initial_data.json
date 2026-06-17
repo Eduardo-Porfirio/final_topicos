@@ -24,18 +24,49 @@
     "pk": 1,
     "fields": {
       "idperiodoletivo": 1,
-      "codigo": "DCC001",
-      "nmcompcurricular": "Algoritmos e Programação",
+      "codigo": "GEX1093",
+      "nmcompcurricular": "TÓPICOS ESPECIAIS EM COMPUTAÇÃO XLIII",
+      "status": true
+    }
+  },
+    {
+    "model": "comp_curricular.componentecurricular",
+    "pk": 2,
+    "fields": {
+      "idperiodoletivo": 1,
+      "codigo": "GEX614",
+      "nmcompcurricular": "TEORIA DA COMPUTAÇÃO",
+      "status": true
+    }
+  },
+
+    {
+    "model": "comp_curricular.componentecurricular",
+    "pk": 3,
+    "fields": {
+      "idperiodoletivo": 1,
+      "codigo": "GEX968",
+      "nmcompcurricular": "CÁLCULO A",
+      "status": true
+    }
+  },
+   {
+    "model": "comp_curricular.componentecurricular",
+    "pk": 4,
+    "fields": {
+      "idperiodoletivo": 1,
+      "codigo": "GCH292",
+      "nmcompcurricular": "HISTÓRIA DA FRONTEIRA SUL",
       "status": true
     }
   },
   {
     "model": "comp_curricular.componentecurricular",
-    "pk": 2,
+    "pk": 5,
     "fields": {
       "idperiodoletivo": 1,
-      "codigo": "DCC002",
-      "nmcompcurricular": "Estruturas de Dados",
+      "codigo": "GCS239",
+      "nmcompcurricular": "DIREITOS E CIDADANIA",
       "status": true
     }
   },
@@ -86,6 +117,26 @@
       "nmAtividade": "Trabalho de Grafos",
       "descAtividade": "Implementação de algoritmos de busca em profundidade e largura.",
       "dtAtividade": "2026-06-25"
+    }
+  },
+  {
+    "model": "aluno.aluno",
+    "pk": 1,
+    "fields": {
+      "idturma": 1,
+      "matricula": "2221101030",
+      "num_telefone": "(49) 999859750",
+      "nmaluno": "Eduardo Vitor"
+    }
+  },
+    {
+    "model": "aluno.aluno",
+    "pk": 2,
+    "fields": {
+      "idturma": 2,
+      "matricula": "2221101045",
+      "num_telefone": "(49) 999859750",
+      "nmaluno": "Wellinton Bao"
     }
   }
 ]

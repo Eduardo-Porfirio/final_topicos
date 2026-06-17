@@ -51,9 +51,14 @@ Este arquivo documenta as principais mudanças realizadas no projeto, com foco e
 - **Menu Global (Navbar):** Refatorada a barra de navegação principal. Todos os links principais ("Painel", "Períodos", "Disparos") foram movidos para dentro do **Menu Dropdown de Usuário** (representado pelo avatar), deixando a barra do topo mais limpa e minimalista.
 
 ### Infraestrutura Telegram
-- **Modelagem de Dados:** Implementados os modelos `TelegramGroup` (vínculo entre turmas e grupos reais) e `TelegramAuditLog` (rastreio de eventos e mensagens) para suportar a coleta automática de dados.
+- **Modelagem de Dados:** Implementados os modelos `TelegramGroup` (vínculo entre turmas e grupos reais), `TelegramAuditLog` (rastreio de eventos) e o **Modelo Singleton `TelegramSettings`** para armazenar o Token do Bot no banco de dados.
+- **Configurações Dinâmicas (Interface):** Criada a tela de `Configurações` vinculada ao menu do usuário, permitindo o cadastro e alteração do Token da API (`bot_token`) diretamente pela interface visual, sem necessidade de editar arquivos `.env`.
+- **Inteligência de Envio:** A função utilitária `enviar_mensagem_telegram` foi refatorada para ler o token prioritariamente do banco de dados (`TelegramSettings`), utilizando o `.env` apenas como fallback de segurança.
 - **Persistência:** Criadas e aplicadas migrações via Docker para sincronização com o banco de dados.
 - **Métricas Dinâmicas:** A view de gerenciamento agora consome dados reais dos novos modelos, exibindo estatísticas e os últimos logs de atividade.
+- **Webhook e Bot API:** Criado o endpoint `telegram/webhook/` (com `@csrf_exempt`) para escutar requisições diretas do Telegram. Implementado o processamento básico de comandos como `/start` e `/noticias`.
+- **Lógica de Consulta via Bot:** A view do Webhook identifica a qual turma o grupo do Telegram pertence cruzando o `chat_id` com o banco de dados, busca as 5 últimas notícias cadastradas e responde no chat formatado em HTML.
+- **Variáveis de Ambiente:** Adicionada a chave `TELEGRAM_BOT_TOKEN` em `.env.example` e configurada a leitura em `settings.py` para permitir requisições seguras à API do Telegram via `urllib.request`.
 
 ---
 *Notas:* O projeto segue em ambiente acadêmico com `@csrf_exempt` habilitado para facilitar testes locais via Docker.
