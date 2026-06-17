@@ -24,6 +24,37 @@ Este arquivo documenta as principais mudanças realizadas no projeto, com foco e
 ### Roteamento (`src/periodo_letivo/urls.py` e `src/comp_curricular/urls.py`)
 - **Nomes de Rotas:** Adicionado o parâmetro `name` aos `path` das URLs para permitir o uso de `reverse` e da tag `{% url %}` nos templates, corrigindo erros de `NoReverseMatch`.
 
+## [2026-06-17] - Refinamento de Lógica, Validações e Conformidade
+
+### Modelos e Representação (`__str__`)
+- **Exibição Amigável:** Implementado o método `__str__` em todos os modelos principais (`PeriodoLetivo`, `ComponenteCurricular`, `Turma`, `Noticia`, `Atividade`). Isso corrige o problema de exibição de objetos como "object (1)" no frontend, substituindo por nomes, códigos ou títulos legíveis.
+
+### Formulários e Validações (`forms.py`)
+- **Correção de Referência:** Corrigido erro em `NoticiaForm` que referenciava o campo `flstatus` em vez de `flenvio`.
+- **Validação de Período:** Adicionada regra em `PeriodoLetivoForm` para impedir que a data final seja anterior à data inicial.
+- **Campos Booleanos:** Ajustado o parâmetro `required=False` para todos os campos de checkbox (status, ativo, envio), permitindo que registros sejam salvos com valor "Falso".
+
+### Views e APIs (`views.py`)
+- **Padronização JSON:** Atualizada a view `consultar_periodo_letivo_view` para retornar `JsonResponse` em vez de texto puro.
+- **Correção de Filtro:** Corrigida a lógica de `consultar_noticia_por_turma` para filtrar corretamente pelo ID da turma.
+
+### Testes Automatizados
+- **Infraestrutura de Testes:** Criados os primeiros testes unitários para o modelo `PeriodoLetivo` em `src/periodo_letivo/tests.py`.
+- **Validação via Docker:** Testes executados e validados com sucesso dentro do container, garantindo conformidade com os critérios de avaliação.
+
+## [2026-06-17] - Módulo de Integração Telegram (Mockup)
+
+### Interface e Navegação
+- **Novo Aplicativo:** Criado o app `telegram` para centralizar a futura integração com a API.
+- **Painel de Gerenciamento:** Desenvolvida a tela de "Gerenciamento da API do Telegram" (`telegram/management/`) com métricas reais baseadas em banco de dados e logs de auditoria.
+- **Central de Disparos:** Criado o mockup da tela "Disparos Telegram" (`telegram/disparos/`) para testar o fluxo de envio segmentado de mensagens (por turma, componente ou geral). Inclui formulário dinâmico utilizando JS.
+- **Menu Global (Navbar):** Refatorada a barra de navegação principal. Todos os links principais ("Painel", "Períodos", "Disparos") foram movidos para dentro do **Menu Dropdown de Usuário** (representado pelo avatar), deixando a barra do topo mais limpa e minimalista.
+
+### Infraestrutura Telegram
+- **Modelagem de Dados:** Implementados os modelos `TelegramGroup` (vínculo entre turmas e grupos reais) e `TelegramAuditLog` (rastreio de eventos e mensagens) para suportar a coleta automática de dados.
+- **Persistência:** Criadas e aplicadas migrações via Docker para sincronização com o banco de dados.
+- **Métricas Dinâmicas:** A view de gerenciamento agora consome dados reais dos novos modelos, exibindo estatísticas e os últimos logs de atividade.
+
 ---
 *Notas:* O projeto segue em ambiente acadêmico com `@csrf_exempt` habilitado para facilitar testes locais via Docker.
 

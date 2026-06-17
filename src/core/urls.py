@@ -28,4 +28,5 @@ urlpatterns = [
     path("comp_curricular/", include("comp_curricular.urls")),
     path("noticia/", include("noticia.urls")),
     path("turma/", include("turma.urls")),
+    path("telegram/", include("telegram.urls")),
 ]

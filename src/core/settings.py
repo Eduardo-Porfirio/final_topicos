@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "comp_curricular.apps.CompCurricularConfig",
     "noticia.apps.NoticiaConfig",
     "turma.apps.TurmaConfig",
+    "telegram.apps.TelegramConfig",
 ]
 
 MIDDLEWARE = [
