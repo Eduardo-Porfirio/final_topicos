@@ -1,15 +1,84 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
-from .models import ComponenteCurricular
-from .models import PeriodoLetivo
 from django.views.decorators.csrf import csrf_exempt
-import json
+from .models import ComponenteCurricular
+from .forms import ComponenteCurricularForm
 from django.contrib.auth.decorators import login_required
+import json
+
+from django.db.models import Q
+from periodo_letivo.models import PeriodoLetivo
 
 @login_required
 def list_comp_curricular_view(request):
+    # Captura parâmetros da URL
+    search_query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', '')
+    periodo_filter = request.GET.get('periodo', '')
+
+    # Inicia o queryset base
     componentes = ComponenteCurricular.objects.all().select_related('idperiodoletivo')
-    return render(request, 'comp_curricular/list.html', {'componentes': componentes})
+
+    # Aplica busca textual (Nome ou Código)
+    if search_query:
+        componentes = componentes.filter(
+            Q(nmcompcurricular__icontains=search_query) | 
+            Q(codigo__icontains=search_query)
+        )
+
+    # Aplica filtro de status
+    if status_filter:
+        is_active = status_filter == '1'
+        componentes = componentes.filter(status=is_active)
+
+    # Aplica filtro de período
+    if periodo_filter:
+        componentes = componentes.filter(idperiodoletivo_id=periodo_filter)
+
+    # Dados para popular os filtros no template
+    periodos = PeriodoLetivo.objects.all().order_by('-dtinicial')
+
+    context = {
+        'componentes': componentes,
+        'periodos': periodos,
+        'filters': {
+            'q': search_query,
+            'status': status_filter,
+            'periodo': periodo_filter,
+        }
+    }
+    return render(request, 'comp_curricular/list.html', context)
+
+@login_required
+def create_comp_curricular_view(request):
+    if request.method == 'POST':
+        form = ComponenteCurricularForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_comp_curricular')
+    else:
+        form = ComponenteCurricularForm()
+    return render(request, 'comp_curricular/form.html', {'form': form, 'title': 'Novo Componente Curricular'})
+
+@login_required
+def edit_comp_curricular_view(request, pk):
+    comp = get_object_or_404(ComponenteCurricular, pk=pk)
+    if request.method == 'POST':
+        form = ComponenteCurricularForm(request.POST, instance=comp)
+        if form.is_valid():
+            form.save()
+            return redirect('list_comp_curricular')
+    else:
+        form = ComponenteCurricularForm(instance=comp)
+    return render(request, 'comp_curricular/form.html', {'form': form, 'title': 'Editar Componente'})
+
+@login_required
+def delete_comp_curricular_view(request, pk):
+    comp = get_object_or_404(ComponenteCurricular, pk=pk)
+    if request.method == 'POST':
+        comp.delete()
+        return redirect('list_comp_curricular')
+    return render(request, 'comp_curricular/confirm_delete.html', {'obj': comp})
 
 def comp_curricular_view(request):
     return HttpResponse('Componente Curricular!')

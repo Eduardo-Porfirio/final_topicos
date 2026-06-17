@@ -1,16 +1,77 @@
 import json
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Noticia
+from .forms import NoticiaForm
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import Noticia
+import json
 
-from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from turma.models import Turma
 
 @login_required
 def list_noticias_view(request):
+    search_query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', '')
+    turma_filter = request.GET.get('turma', '')
+
     noticias = Noticia.objects.all().select_related('idturma', 'idturma__idcompcurricular').order_by('-dtnoticia')
-    return render(request, 'noticia/list.html', {'noticias': noticias})
+
+    if search_query:
+        noticias = noticias.filter(titulo__icontains=search_query)
+
+    if status_filter:
+        is_sent = status_filter == '1'
+        noticias = noticias.filter(flenvio=is_sent)
+
+    if turma_filter:
+        noticias = noticias.filter(idturma_id=turma_filter)
+
+    turmas = Turma.objects.all().select_related('idcompcurricular').order_by('idturma')
+
+    context = {
+        'noticias': noticias,
+        'turmas': turmas,
+        'filters': {
+            'q': search_query,
+            'status': status_filter,
+            'turma': turma_filter,
+        }
+    }
+    return render(request, 'noticia/list.html', context)
+
+@login_required
+def create_noticia_view(request):
+    if request.method == 'POST':
+        form = NoticiaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_noticias')
+    else:
+        form = NoticiaForm()
+    return render(request, 'noticia/form.html', {'form': form, 'title': 'Nova Notícia'})
+
+@login_required
+def edit_noticia_view(request, pk):
+    noticia = get_object_or_404(Noticia, pk=pk)
+    if request.method == 'POST':
+        form = NoticiaForm(request.POST, instance=noticia)
+        if form.is_valid():
+            form.save()
+            return redirect('list_noticias')
+    else:
+        form = NoticiaForm(instance=noticia)
+    return render(request, 'noticia/form.html', {'form': form, 'title': 'Editar Notícia'})
+
+@login_required
+def delete_noticia_view(request, pk):
+    noticia = get_object_or_404(Noticia, pk=pk)
+    if request.method == 'POST':
+        noticia.delete()
+        return redirect('list_noticias')
+    return render(request, 'noticia/confirm_delete.html', {'obj': noticia})
 
 @require_http_methods(["GET"])
 def consultar_todas_noticias(request):

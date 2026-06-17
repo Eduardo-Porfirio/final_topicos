@@ -5,9 +5,53 @@
 {% block content %}
 <div class="mb-6 flex justify-between items-center">
     <h1 class="text-3xl font-bold text-gray-800">Notícias</h1>
-    <a href="{% url 'dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-300">
-        &larr; Voltar para Dashboard
-    </a>
+    <div class="space-x-2">
+        <a href="{% url 'create_noticia' %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition duration-300">
+            + Nova Notícia
+        </a>
+        <a href="{% url 'dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-300">
+            &larr; Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Seção de Filtros e Busca -->
+<div class="bg-white p-4 rounded-lg shadow-md border mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
+            <label class="block text-gray-600 text-xs font-bold uppercase mb-1">Buscar Título</label>
+            <input type="text" name="q" value="{{ filters.q }}" placeholder="Assunto..." 
+                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+        </div>
+
+        <div>
+            <label class="block text-gray-600 text-xs font-bold uppercase mb-1">Status de Envio</label>
+            <select name="status" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                <option value="">Todos</option>
+                <option value="1" {% if filters.status == '1' %}selected{% endif %}>Enviadas</option>
+                <option value="0" {% if filters.status == '0' %}selected{% endif %}>Pendentes</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-gray-600 text-xs font-bold uppercase mb-1">Turma</label>
+            <select name="turma" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                <option value="">Todas as Turmas</option>
+                {% for t in turmas %}
+                    <option value="{{ t.pk }}" {% if filters.turma == t.pk|stringformat:"s" %}selected{% endif %}>Turma #{{ t.idturma }} - {{ t.idcompcurricular.nmcompcurricular }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="flex space-x-2">
+            <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex-1">
+                Filtrar
+            </button>
+            <a href="{% url 'list_noticias' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition duration-300 text-center">
+                Limpar
+            </a>
+        </div>
+    </form>
 </div>
 
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -25,6 +69,9 @@
                 </th>
                 <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Status de Envio
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Ações
                 </th>
             </tr>
         </thead>
@@ -49,11 +96,15 @@
                         <span class="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">Pendente</span>
                     {% endif %}
                 </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center space-x-3">
+                    <a href="{% url 'edit_noticia' noticia.pk %}" class="text-blue-600 hover:text-blue-900 font-semibold">Editar</a>
+                    <a href="{% url 'delete_noticia' noticia.pk %}" class="text-red-600 hover:text-red-900 font-semibold">Excluir</a>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4" class="px-5 py-10 border-b border-gray-200 bg-white text-center">
-                    <p class="text-gray-500">Nenhuma notícia cadastrada.</p>
+                <td colspan="5" class="px-5 py-10 border-b border-gray-200 bg-white text-center">
+                    <p class="text-gray-500">Nenhuma notícia encontrada.</p>
                 </td>
             </tr>
             {% endfor %}

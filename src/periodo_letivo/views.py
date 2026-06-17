@@ -7,10 +7,30 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 import json
 
+from django.db.models import Q
+
 @login_required
 def list_periodos_view(request):
+    search_query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', '')
+
     periodos = PeriodoLetivo.objects.all().order_by('-dtinicial')
-    return render(request, 'periodo_letivo/list.html', {'periodos': periodos})
+
+    if search_query:
+        periodos = periodos.filter(nmperiodo__icontains=search_query)
+
+    if status_filter:
+        is_active = status_filter == '1'
+        periodos = periodos.filter(status=is_active)
+
+    context = {
+        'periodos': periodos,
+        'filters': {
+            'q': search_query,
+            'status': status_filter,
+        }
+    }
+    return render(request, 'periodo_letivo/list.html', context)
 
 @login_required
 def create_periodo_view(request):
