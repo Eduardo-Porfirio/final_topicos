@@ -7,9 +7,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 
-# Create your views here.
-def periodo_letivo_view(request):
-    return HttpResponse("Período Letivo")
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def list_periodos_view(request):
+    periodos = PeriodoLetivo.objects.all().order_by('-dtinicial')
+    return render(request, 'periodo_letivo/list.html', {'periodos': periodos})
 
 
 def consultar_periodo_letivo_view(request):

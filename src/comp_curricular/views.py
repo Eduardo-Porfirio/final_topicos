@@ -4,7 +4,12 @@ from .models import ComponenteCurricular
 from .models import PeriodoLetivo
 from django.views.decorators.csrf import csrf_exempt
 import json
-# Create your views here.
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def list_comp_curricular_view(request):
+    componentes = ComponenteCurricular.objects.all().select_related('idperiodoletivo')
+    return render(request, 'comp_curricular/list.html', {'componentes': componentes})
 
 def comp_curricular_view(request):
     return HttpResponse('Componente Curricular!')

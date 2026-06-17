@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+
 from core.views import dashboard_view
 
 urlpatterns = [
@@ -26,4 +27,5 @@ urlpatterns = [
     path("periodo/", include("periodo_letivo.urls")),
     path("comp_curricular/", include("comp_curricular.urls")),
     path("noticia/", include("noticia.urls")),
+    path("turma/", include("turma.urls")),
 ]

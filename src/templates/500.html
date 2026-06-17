@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Erro Interno - 500{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center h-screen-75 text-center">
+    <div class="bg-white p-10 rounded-lg shadow-xl border border-gray-200">
+        <h1 class="text-9xl font-bold text-red-600">500</h1>
+        <p class="text-2xl font-semibold mt-4 text-gray-700">Algo deu errado!</p>
+        <p class="text-gray-500 mt-2 mb-8">Ocorreu um erro interno no servidor. Nossa equipe técnica já foi notificada.</p>
+        
+        <a href="{% url 'dashboard' %}" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+            Tentar novamente
+        </a>
+    </div>
+</div>
+
+<style>
+    .h-screen-75 { height: 75vh; }
+</style>
+{% endblock %}

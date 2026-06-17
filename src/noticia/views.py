@@ -5,6 +5,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .models import Noticia
 
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def list_noticias_view(request):
+    noticias = Noticia.objects.all().select_related('idturma', 'idturma__idcompcurricular').order_by('-dtnoticia')
+    return render(request, 'noticia/list.html', {'noticias': noticias})
+
 @require_http_methods(["GET"])
 def consultar_todas_noticias(request):
     noticias = list(Noticia.objects.all().values())

@@ -10,7 +10,7 @@
         <h2 class="text-xl font-bold mb-2 text-gray-800">Períodos Letivos</h2>
         <p class="text-3xl font-semibold text-blue-600">{{ total_periodos }}</p>
         <p class="text-gray-500 text-sm">Cadastrados no sistema</p>
-        <a href="{% url 'periodo_letivo_view' %}" class="mt-4 inline-block text-blue-500 hover:underline">Ver todos &rarr;</a>
+        <a href="{% url 'list_periodos' %}" class="mt-4 inline-block text-blue-500 hover:underline">Ver todos &rarr;</a>
     </div>
 
     <!-- Card Componentes -->
@@ -18,7 +18,7 @@
         <h2 class="text-xl font-bold mb-2 text-gray-800">Componentes</h2>
         <p class="text-3xl font-semibold text-purple-600">{{ total_componentes }}</p>
         <p class="text-gray-500 text-sm">Disciplinas cadastradas</p>
-        <a href="{% url 'comp_curricular_view' %}" class="mt-4 inline-block text-purple-500 hover:underline">Ver todos &rarr;</a>
+        <a href="{% url 'list_comp_curricular' %}" class="mt-4 inline-block text-purple-500 hover:underline">Ver todos &rarr;</a>
     </div>
 
     <!-- Card Turmas -->
@@ -26,7 +26,7 @@
         <h2 class="text-xl font-bold mb-2 text-gray-800">Turmas Ativas</h2>
         <p class="text-3xl font-semibold text-green-600">{{ total_turmas }}</p>
         <p class="text-gray-500 text-sm">Turmas em andamento</p>
-        <a href="#" class="mt-4 inline-block text-green-500 hover:underline">Ver todas &rarr;</a>
+        <a href="{% url 'list_turmas' %}" class="mt-4 inline-block text-green-500 hover:underline">Ver todas &rarr;</a>
     </div>
 
     <!-- Card Notícias -->
@@ -34,7 +34,7 @@
         <h2 class="text-xl font-bold mb-2 text-gray-800">Notícias</h2>
         <p class="text-3xl font-semibold text-yellow-600">{{ total_noticias }}</p>
         <p class="text-gray-500 text-sm">Publicações recentes</p>
-        <a href="{% url 'consultar_todas_noticias' %}" class="mt-4 inline-block text-yellow-500 hover:underline">Gerenciar &rarr;</a>
+        <a href="{% url 'list_noticias' %}" class="mt-4 inline-block text-yellow-500 hover:underline">Gerenciar &rarr;</a>
     </div>
 
 </div>

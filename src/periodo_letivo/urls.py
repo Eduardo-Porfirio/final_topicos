@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.periodo_letivo_view, name='periodo_letivo_view'),
+    path('', views.list_periodos_view, name='list_periodos'),
     path('consultar/', views.consultar_periodo_letivo_view, name='consultar_periodo_letivo'),
     path('inserir/', views.inserir_periodo_letivo_view, name='inserir_periodo_letivo'),
     path('encerrar/<str:nome>/', views.encerrar_periodo_letivo_view, name='encerrar_periodo_letivo'),

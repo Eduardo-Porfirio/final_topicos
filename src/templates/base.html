@@ -18,11 +18,8 @@
                     >Painel de Gestão</a
                 >
                 <div class="space-x-4 flex items-center">
-                    <a
-                        href="{% url 'dashboard' %}"
-                        class="text-blue-100 hover:text-white text-sm"
-                        >Painel</a
-                    >
+                    <a href="{% url 'list_periodos' %}" class="text-blue-100 hover:text-white text-sm">Períodos</a>
+                    <a href="{% url 'dashboard' %}" class="text-blue-100 hover:text-white text-sm">Painel</a>
                     {% if user.is_authenticated %}
                     <span class="text-blue-300 text-sm"
                         >| Olá, {{ user.username }}</span

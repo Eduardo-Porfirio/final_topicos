@@ -1,0 +1,91 @@
+[
+  {
+    "model": "periodo_letivo.periodoletivo",
+    "pk": 1,
+    "fields": {
+      "nmperiodo": "2026.1",
+      "dtinicial": "2026-01-20",
+      "dtfinal": "2026-06-15",
+      "status": true
+    }
+  },
+  {
+    "model": "periodo_letivo.periodoletivo",
+    "pk": 2,
+    "fields": {
+      "nmperiodo": "2025.2",
+      "dtinicial": "2025-08-10",
+      "dtfinal": "2025-12-18",
+      "status": false
+    }
+  },
+  {
+    "model": "comp_curricular.componentecurricular",
+    "pk": 1,
+    "fields": {
+      "idperiodoletivo": 1,
+      "codigo": "DCC001",
+      "nmcompcurricular": "Algoritmos e Programação",
+      "status": true
+    }
+  },
+  {
+    "model": "comp_curricular.componentecurricular",
+    "pk": 2,
+    "fields": {
+      "idperiodoletivo": 1,
+      "codigo": "DCC002",
+      "nmcompcurricular": "Estruturas de Dados",
+      "status": true
+    }
+  },
+  {
+    "model": "turma.turma",
+    "pk": 1,
+    "fields": {
+      "idcompcurricular": 1,
+      "matricula": 45,
+      "flstatus": true
+    }
+  },
+  {
+    "model": "turma.turma",
+    "pk": 2,
+    "fields": {
+      "idcompcurricular": 2,
+      "matricula": 30,
+      "flstatus": true
+    }
+  },
+  {
+    "model": "noticia.noticia",
+    "pk": 1,
+    "fields": {
+      "dtnoticia": "2026-06-16",
+      "titulo": "Início das Provas Finais",
+      "desc_noticia": "As provas finais do período 2026.1 começarão na próxima semana. Verifiquem o calendário.",
+      "flenvio": true,
+      "idturma": 1
+    }
+  },
+  {
+    "model": "noticia.noticia",
+    "pk": 2,
+    "fields": {
+      "dtnoticia": "2026-06-15",
+      "titulo": "Divulgação de Notas",
+      "desc_noticia": "As notas da segunda avaliação de Estruturas de Dados já estão disponíveis no sistema.",
+      "flenvio": false,
+      "idturma": 2
+    }
+  },
+  {
+    "model": "noticia.atividade",
+    "pk": 1,
+    "fields": {
+      "nmAtividade": "Trabalho de Grafos",
+      "descAtividade": "Implementação de algoritmos de busca em profundidade e largura.",
+      "dtAtividade": "2026-06-25"
+    }
+  }
+]
