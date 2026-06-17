@@ -60,6 +60,27 @@ Este arquivo documenta as principais mudanças realizadas no projeto, com foco e
 - **Lógica de Consulta via Bot:** A view do Webhook identifica a qual turma o grupo do Telegram pertence cruzando o `chat_id` com o banco de dados, busca as 5 últimas notícias cadastradas e responde no chat formatado em HTML.
 - **Variáveis de Ambiente:** Adicionada a chave `TELEGRAM_BOT_TOKEN` em `.env.example` e configurada a leitura em `settings.py` para permitir requisições seguras à API do Telegram via `urllib.request`.
 
+## Documentação da Arquitetura: Integração Telegram (Django + Telethon)
+
+O projeto utiliza uma arquitetura híbrida para se comunicar com o Telegram, separando responsabilidades para evitar bloqueios síncronos no Django e contornar limitações da API oficial de Bots.
+
+### 1. Divisão de Papéis
+*   **API Oficial (BotFather) + Webhooks:** Responsável por **escutar mensagens** dos alunos e **enviar notificações**. Funciona dentro do container Django (`web`), acionada de forma assíncrona ("lazy") quando o Telegram envia um POST para a rota `/telegram/webhook/`.
+*   **MTProto API (Telethon) + FastAPI:** Responsável por ações complexas, especificamente a **criação de grupos**. Funciona em um microserviço isolado (`app_telethon`), já que Bots comuns não têm permissão para criar grupos diretamente "do nada".
+
+### 2. Passo a Passo: Fluxo de Criação de Grupos
+Quando um professor "abre" uma turma no sistema, o seguinte fluxo acontece:
+1.  **Gatilho Interno:** O Django salva a Turma no PostgreSQL.
+2.  **Comunicação Inter-containers:** A view do Django dispara uma requisição POST interna para o microserviço (`http://telethon_service:8001/create-group`) passando o nome da disciplina.
+3.  **Ação no Telegram:** O FastAPI recebe o JSON e aciona o **Telethon**. O Telethon (agindo com os privilégios da `API_ID` e `API_HASH`) se comunica com os servidores centrais do Telegram e cria um "Supergrupo".
+4.  **Devolução do ID:** O Telegram devolve o `chat_id` gerado (ex: `-100987654321`) e o link de convite.
+5.  **Persistência no Django:** O FastAPI retorna esses dados na resposta HTTP para o Django. O Django, por sua vez, salva isso no modelo `TelegramGroup`, amarrando aquela Turma àquele chat específico.
+
+### 3. Passo a Passo: Disparo e Escuta de Mensagens
+1.  **O Aluno Pergunta:** Um aluno digita `/noticias` no grupo recém-criado.
+2.  **O Webhook Atua:** Os servidores do Telegram disparam um POST para o nosso servidor. O Django capta o `chat_id` remetente e procura na tabela `TelegramGroup` qual turma é a dona daquele chat.
+3.  **A Resposta:** O Django levanta as últimas 5 notícias daquela turma, formata o texto e envia de volta usando o `TELEGRAM_BOT_TOKEN`, registrando a ação na tabela `TelegramAuditLog`.
+
 ---
 *Notas:* O projeto segue em ambiente acadêmico com `@csrf_exempt` habilitado para facilitar testes locais via Docker.
 
