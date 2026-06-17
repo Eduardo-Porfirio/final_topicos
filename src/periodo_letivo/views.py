@@ -1,18 +1,47 @@
 import json
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
 from .models import PeriodoLetivo
+from .forms import PeriodoLetivoForm
 from django.views.decorators.csrf import csrf_exempt
-
-
-
 from django.contrib.auth.decorators import login_required
+import json
 
 @login_required
 def list_periodos_view(request):
     periodos = PeriodoLetivo.objects.all().order_by('-dtinicial')
     return render(request, 'periodo_letivo/list.html', {'periodos': periodos})
+
+@login_required
+def create_periodo_view(request):
+    if request.method == 'POST':
+        form = PeriodoLetivoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_periodos')
+    else:
+        form = PeriodoLetivoForm()
+    return render(request, 'periodo_letivo/form.html', {'form': form, 'title': 'Novo Período Letivo'})
+
+@login_required
+def edit_periodo_view(request, pk):
+    periodo = get_object_or_404(PeriodoLetivo, pk=pk)
+    if request.method == 'POST':
+        form = PeriodoLetivoForm(request.POST, instance=periodo)
+        if form.is_valid():
+            form.save()
+            return redirect('list_periodos')
+    else:
+        form = PeriodoLetivoForm(instance=periodo)
+    return render(request, 'periodo_letivo/form.html', {'form': form, 'title': 'Editar Período Letivo'})
+
+@login_required
+def delete_periodo_view(request, pk):
+    periodo = get_object_or_404(PeriodoLetivo, pk=pk)
+    if request.method == 'POST':
+        periodo.delete()
+        return redirect('list_periodos')
+    return render(request, 'periodo_letivo/confirm_delete.html', {'obj': periodo})
 
 
 def consultar_periodo_letivo_view(request):
