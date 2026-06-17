@@ -17,6 +17,7 @@ RUN pip install --upgrade pip
 RUN pip install Django==6.0.4
 RUN pip install psycopg2-binary
 RUN pip install python-dotenv
+RUN pip install fastapi uvicorn telethon
 
 # Copia o seu código para dentro do contêiner
 COPY . .

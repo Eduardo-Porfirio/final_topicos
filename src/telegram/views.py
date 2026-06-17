@@ -23,6 +23,9 @@ def telegram_management_view(request):
     total_usuarios = sum(g.total_membros for g in TelegramGroup.objects.all())
     ultimos_logs = TelegramAuditLog.objects.all()[:5]
     
+    # Busca a lista de grupos para a tabela
+    lista_grupos = TelegramGroup.objects.all().order_by('-data_criacao')
+    
     # Verifica se o bot_token está configurado no BD ou no .env
     configuracao = TelegramSettings.get_settings()
     api_configurada = bool(configuracao.bot_token) or bool(settings.TELEGRAM_BOT_TOKEN)
@@ -33,6 +36,7 @@ def telegram_management_view(request):
         'total_usuarios': total_usuarios,
         'grupos_ativos': grupos_ativos,
         'ultimos_logs': ultimos_logs,
+        'lista_grupos': lista_grupos,
         'api_configurada': api_configurada,
     }
     return render(request, 'telegram/management.html', context)
