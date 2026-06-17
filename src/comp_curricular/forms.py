@@ -2,6 +2,8 @@ from django import forms
 from .models import ComponenteCurricular
 
 class ComponenteCurricularForm(forms.ModelForm):
+    status = forms.BooleanField(required=False, initial=True, label='Ativo')
+
     class Meta:
         model = ComponenteCurricular
         fields = ['idperiodoletivo', 'codigo', 'nmcompcurricular', 'status']
@@ -9,7 +11,6 @@ class ComponenteCurricularForm(forms.ModelForm):
             'idperiodoletivo': 'Período Letivo',
             'codigo': 'Código da Disciplina',
             'nmcompcurricular': 'Nome do Componente',
-            'status': 'Ativo',
         }
         widgets = {
             'idperiodoletivo': forms.Select(attrs={'class': 'w-full px-3 py-2 border rounded-lg'}),

@@ -65,12 +65,12 @@ def delete_periodo_view(request, pk):
 
 
 def consultar_periodo_letivo_view(request):
-    periodo_letivo = PeriodoLetivo.objects.filter(status = True)
-    periodo_letivo = list(periodo_letivo.values())
-    if periodo_letivo:
-        return HttpResponse(f"Período Letivo: {periodo_letivo[0]['nmperiodo']}")
+    periodos = PeriodoLetivo.objects.filter(status=True)
+    if periodos.exists():
+        periodos_list = list(periodos.values())
+        return JsonResponse(periodos_list, safe=False)
     else:
-        return HttpResponse("Nenhum período letivo encontrado.")
+        return JsonResponse({"erro": "Nenhum período letivo ativo encontrado."}, status=404)
     
 @csrf_exempt    
 def inserir_periodo_letivo_view(request):

@@ -12,6 +12,9 @@ class Noticia(models.Model):
     # Relacionamento com Turma (conforme diagrama "gerar")
     idturma = models.ForeignKey('turma.Turma', on_delete=models.CASCADE, db_column='idturma')
 
+    def __str__(self):
+        return self.titulo
+
     class Meta:
         db_table = "noticia"
 
@@ -21,6 +24,9 @@ class Atividade(models.Model):
     nmAtividade = models.CharField(max_length=255)
     descAtividade = models.TextField()
     dtAtividade = models.DateField()
+
+    def __str__(self):
+        return self.nmAtividade
 
     class Meta:
         db_table = "atividade"

@@ -8,5 +8,8 @@ class PeriodoLetivo(models.Model):
     dtfinal = models.DateField()
     status = models.BooleanField()
 
+    def __str__(self):
+        return self.nmperiodo
+
     class Meta:
         db_table = 'periodo_letivo'

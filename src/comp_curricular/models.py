@@ -10,5 +10,8 @@ class ComponenteCurricular(models.Model):
     nmcompcurricular = models.CharField(max_length=255)
     status = models.BooleanField()
 
+    def __str__(self):
+        return f"{self.codigo} - {self.nmcompcurricular}"
+
     class Meta:
         db_table = 'comp_curricular'

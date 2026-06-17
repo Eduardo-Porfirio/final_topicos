@@ -9,5 +9,8 @@ class Turma(models.Model):
     matricula = models.IntegerField() 
     flstatus = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f"Turma {self.idturma} - {self.idcompcurricular.nmcompcurricular}"
+
     class Meta:
         db_table = 'turma'

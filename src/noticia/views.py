@@ -82,14 +82,12 @@ def consultar_todas_noticias(request):
 
 @require_http_methods(["GET"])
 def consultar_noticia_por_turma(request, id):
-    # Nota: No diagrama, a busca seria por idturma. 
-    # Aqui mantive a lógica de buscar por ID da notícia conforme seu código anterior, 
-    # mas ajustado para o novo nome do campo idnoticia.
+    # Busca por idturma
     try:
-        noticia = list(Noticia.objects.filter(idnoticia=id).values())
-        if not noticia:
-             return JsonResponse({"erro": "Notícia não encontrada."}, status=404)
-        return JsonResponse(noticia[0], safe=False, status=200)
+        noticias = list(Noticia.objects.filter(idturma_id=id).values())
+        if not noticias:
+             return JsonResponse({"erro": "Nenhuma notícia encontrada para esta turma."}, status=404)
+        return JsonResponse(noticias, safe=False, status=200)
     except Exception as e:
         return JsonResponse({"erro": str(e)}, status=400)
 
