@@ -75,50 +75,64 @@ async def create_group(request: GroupCreateRequest):
         raise HTTPException(status_code=401, detail="UserBot não autorizado. Realize o login via /request-code e /login")
 
     try:
-        # UserBots PODEM usar CreateChatRequest
+        # Telegram exige pelo menos 1 usuário para criar um grupo normal.
+        # Vamos separar usernames (ex: @portal_sigaa_bot) dos números de telefone.
+        # O UserBot resolve usernames muito mais fácil do que telefones não-salvos na agenda.
+        usernames = [u for u in request.users_to_add if u.startswith('@')]
+        phones = [u for u in request.users_to_add if not u.startswith('@')]
+        
+        # Garante pelo menos o bot para a criação
+        initial_users = usernames if usernames else ["@portal_sigaa_bot"]
+
+        # Cria o grupo
         result = await client(CreateChatRequest(
-            users=request.users_to_add,
+            users=initial_users,
             title=request.turma_nome
         ))
         
-        print(f"DEBUG RESULT TYPE: {type(result)}")
-        
-        # Tenta extrair o chat_id de forma agressiva
         chat_id = None
         
-        # 1. Tenta atributo chats
-        if hasattr(result, 'chats') and result.chats:
+        # O método mais seguro no Telethon recente é iterar pelos chats retornados
+        if hasattr(result, 'chats') and len(result.chats) > 0:
             chat_id = result.chats[0].id
-            
-        # 2. Tenta atributo updates recursivamente
-        if chat_id is None and hasattr(result, 'updates'):
+        elif hasattr(result, 'updates'):
+            # Em alguns casos do UserBot, ele retorna na aba 'updates'
             u_list = result.updates
-            if hasattr(u_list, 'updates'): # Se for um objeto Updates que contém uma lista updates
+            if hasattr(u_list, 'updates'):
                 u_list = u_list.updates
-            
-            if isinstance(u_list, list):
-                for u in u_list:
-                    # Alguns updates tem chat_id, outros tem peer_id.chat_id
-                    if hasattr(u, 'chat_id'):
-                        chat_id = u.chat_id
-                        break
-                    elif hasattr(u, 'message') and hasattr(u.message, 'peer_id') and hasattr(u.message.peer_id, 'chat_id'):
-                        chat_id = u.message.peer_id.chat_id
-                        break
-                    elif hasattr(u, 'peer') and hasattr(u.peer, 'chat_id'):
-                        chat_id = u.peer.chat_id
-                        break
+                
+            for u in u_list:
+                if hasattr(u, 'chat_id'):
+                    chat_id = u.chat_id
+                    break
+                elif hasattr(u, 'message') and hasattr(u.message, 'peer_id') and hasattr(u.message.peer_id, 'chat_id'):
+                    chat_id = u.message.peer_id.chat_id
+                    break
+
+        if not chat_id:
+            # Se ainda assim não achar, podemos buscar o último diálogo (gambiarra segura para userbot recém-criador)
+            dialogs = await client.get_dialogs(limit=1)
+            if dialogs:
+                chat_id = dialogs[0].id
+
+        if not chat_id:
+            raise Exception("Erro crítico: Grupo criado, mas não foi possível extrair o ID do Chat.")
+
+        # Agora tenta adicionar os usuários restantes (telefones, etc)
+        from telethon.tl.functions.messages import AddChatUserRequest
         
-        # Caso 3: Fallback para InvitedUsers ou outros objetos que tenham chats (mesmo que escondidos)
-        if chat_id is None:
-            # Tenta pegar qualquer atributo que pareça um ID de chat
+        # Filtra quem não está no initial_users para não duplicar
+        remaining_users = [u for u in request.users_to_add if u not in initial_users]
+        
+        for user in remaining_users:
             try:
-                # InvitedUsers costuma ter um link ou referência
-                print(f"DEBUG OBJ STR: {str(result)}")
-            except: pass
-            
-        if chat_id is None:
-            raise Exception(f"Não foi possível extrair o chat_id do retorno tipo {type(result)}")
+                await client(AddChatUserRequest(
+                    chat_id=chat_id,
+                    user_id=user,
+                    fwd_limit=100
+                ))
+            except Exception as e:
+                print(f"Não foi possível adicionar {user}: {e}")
 
         return {"status": "success", "chat_id": chat_id, "turma": request.turma_nome}
     except Exception as e:

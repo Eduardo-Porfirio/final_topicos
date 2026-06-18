@@ -35,6 +35,18 @@ def telegram_management_view(request):
     configuracao = TelegramSettings.get_settings()
     api_configurada = bool(configuracao.bot_token) or bool(settings.TELEGRAM_BOT_TOKEN)
 
+    # Checagem de Saúde do Microserviço Telethon
+    telethon_status = {"online": False, "authorized": False}
+    try:
+        url_health = "http://telethon_service:8001/health"
+        with urllib.request.urlopen(url_health, timeout=2) as response:
+            if response.status == 200:
+                data = json.loads(response.read().decode('utf-8'))
+                telethon_status["online"] = True
+                telethon_status["authorized"] = data.get("authorized", False)
+    except:
+        pass
+
     context = {
         'total_grupos': total_grupos,
         'total_mensagens': total_mensagens,
@@ -44,6 +56,7 @@ def telegram_management_view(request):
         'lista_grupos': lista_grupos,
         'turmas_sem_grupo': turmas_sem_grupo,
         'api_configurada': api_configurada,
+        'telethon_status': telethon_status,
     }
     return render(request, 'telegram/management.html', context)
 
@@ -74,6 +87,12 @@ def create_group_for_turma_view(request, turma_id):
     
     nome_grupo = f"Turma {turma.idturma} - {turma.idcompcurricular.nmcompcurricular}"
     
+    # Inclui o Bot de Gestão como membro inicial para que ele possa gerenciar o grupo
+    # Buscamos o username dinamicamente se possível, ou usamos o fixo identificado
+    bot_username = "@portal_sigaa_bot" 
+    if bot_username not in users_to_add:
+        users_to_add.append(bot_username)
+
     # Chama o microserviço Telethon
     resultado = create_telegram_group(nome_grupo, users_to_add=users_to_add)
     

@@ -40,13 +40,22 @@
     </div>
 
     <!-- Card Status API -->
-    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
+    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 {% if telethon_status.online %}border-green-500{% else %}border-red-500{% endif %}">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-bold mb-2 text-gray-800">Status API</h2>
-            <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <svg class="w-8 h-8 {% if telethon_status.online %}text-green-500{% else %}text-red-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
-        <p class="text-xl font-semibold text-yellow-600 mt-2">Aguardando Integração</p>
-        <p class="text-gray-500 text-sm">Serviço não inicializado</p>
+        {% if telethon_status.online %}
+            <p class="text-xl font-semibold text-green-600 mt-2">Serviço Online</p>
+            {% if telethon_status.authorized %}
+                <p class="text-xs text-blue-500 font-bold uppercase">UserBot Autorizado</p>
+            {% else %}
+                <p class="text-xs text-orange-500 font-bold uppercase">Aguardando Login</p>
+            {% endif %}
+        {% else %}
+            <p class="text-xl font-semibold text-red-600 mt-2">Serviço Offline</p>
+            <p class="text-gray-500 text-sm">Microserviço indisponível</p>
+        {% endif %}
     </div>
 </div>
 
