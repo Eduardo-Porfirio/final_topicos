@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "noticia.apps.NoticiaConfig",
     "turma.apps.TurmaConfig",
     "telegram.apps.TelegramConfig",
+    "aluno.apps.AlunoConfig",
 ]
 
 MIDDLEWARE = [
