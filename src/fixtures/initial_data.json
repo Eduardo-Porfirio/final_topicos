@@ -10,16 +10,6 @@
     }
   },
   {
-    "model": "periodo_letivo.periodoletivo",
-    "pk": 2,
-    "fields": {
-      "nmperiodo": "2025.2",
-      "dtinicial": "2025-08-10",
-      "dtfinal": "2025-12-18",
-      "status": false
-    }
-  },
-  {
     "model": "comp_curricular.componentecurricular",
     "pk": 1,
     "fields": {
@@ -36,37 +26,6 @@
       "idperiodoletivo": 1,
       "codigo": "GEX614",
       "nmcompcurricular": "TEORIA DA COMPUTAÇÃO",
-      "status": true
-    }
-  },
-
-  {
-    "model": "comp_curricular.componentecurricular",
-    "pk": 3,
-    "fields": {
-      "idperiodoletivo": 1,
-      "codigo": "GEX968",
-      "nmcompcurricular": "CÁLCULO A",
-      "status": true
-    }
-  },
-  {
-    "model": "comp_curricular.componentecurricular",
-    "pk": 4,
-    "fields": {
-      "idperiodoletivo": 1,
-      "codigo": "GCH292",
-      "nmcompcurricular": "HISTÓRIA DA FRONTEIRA SUL",
-      "status": true
-    }
-  },
-  {
-    "model": "comp_curricular.componentecurricular",
-    "pk": 5,
-    "fields": {
-      "idperiodoletivo": 1,
-      "codigo": "GCS239",
-      "nmcompcurricular": "DIREITOS E CIDADANIA",
       "status": true
     }
   },
@@ -105,7 +64,7 @@
     "fields": {
       "dtnoticia": "2026-06-15",
       "titulo": "Divulgação de Notas",
-      "desc_noticia": "As notas da segunda avaliação de Estruturas de Dados já estão disponíveis no sistema.",
+      "desc_noticia": "As notas da segunda avaliação de Teoria da computacao já estão disponíveis no sistema.",
       "flenvio": false,
       "idturma": 2
     }

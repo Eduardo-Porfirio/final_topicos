@@ -115,5 +115,34 @@
             {% endfor %}
         </tbody>
     </table>
+    <!-- Paginação -->
+    <div class="px-5 py-4 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between font-sans">
+        <span class="text-xs xs:text-sm text-gray-900 mb-2 xs:mb-0">
+            Página {{ turmas.number }} de {{ turmas.paginator.num_pages }} (Total de {{ turmas.paginator.count }} registros)
+        </span>
+        <div class="inline-flex mt-2 xs:mt-0 space-x-2">
+            {% if turmas.has_previous %}
+                <a href="?page={{ turmas.previous_page_number }}{% if filters.q %}&q={{ filters.q }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.componente %}&componente={{ filters.componente }}{% endif %}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Anterior
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Anterior
+                </button>
+            {% endif %}
+            
+            {% if turmas.has_next %}
+                <a href="?page={{ turmas.next_page_number }}{% if filters.q %}&q={{ filters.q }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.componente %}&componente={{ filters.componente }}{% endif %}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Próximo
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Próximo
+                </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

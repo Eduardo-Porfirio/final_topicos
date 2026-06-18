@@ -66,10 +66,10 @@ class TelegramIntegrationTest(TestCase):
         self.assertEqual(response.status_code, 302) # Redirecionamento
         self.assertTrue(mock_urlopen.called)
         
-        # Verifica se o grupo foi criado com a contagem correta de membros (1 aluno)
+        # Verifica se o grupo foi criado com a contagem correta de membros (1 aluno + 1 bot)
         self.assertEqual(TelegramGroup.objects.count(), 1)
         grupo = TelegramGroup.objects.first()
-        self.assertEqual(grupo.total_membros, 1)
+        self.assertEqual(grupo.total_membros, 2)
         
         # Verifica se o log de auditoria foi criado
         self.assertEqual(TelegramAuditLog.objects.filter(tipo='GRP', sucesso=True).count(), 1)
@@ -87,3 +87,70 @@ class TelegramIntegrationTest(TestCase):
         response = self.client.post(reverse('telegram_create_group', args=[self.turma.idturma]))
         
         self.assertEqual(TelegramGroup.objects.count(), 1) # Continua sendo 1
+
+    @patch('telegram.views.enviar_mensagem_telegram')
+    def test_telegram_disparar_action_success(self, mock_enviar):
+        """Testa o disparo manual de mensagem para o grupo de uma turma"""
+        # Cria o grupo para a turma
+        grupo = TelegramGroup.objects.create(id_telegram=-12345, turma=self.turma, total_membros=2, ativo=True)
+        
+        # Mocka o envio de mensagem
+        mock_enviar.return_value = True
+
+        from django.contrib.auth.models import User
+        user = User.objects.create_superuser('admin3', 'admin3@test.com', 'pass')
+        self.client.force_login(user)
+
+        from django.urls import reverse
+        response = self.client.post(reverse('telegram_disparar_executar'), {
+            'mensagem': 'Aviso urgente de teste',
+            'turma_alvo': self.turma.idturma
+        })
+
+        self.assertEqual(response.status_code, 302) # Redireciona de volta
+        mock_enviar.assert_called_once_with(-12345, 'Aviso urgente de teste')
+        
+        # Verifica se o log foi criado
+        self.assertEqual(TelegramAuditLog.objects.filter(tipo='MSG', sucesso=True).count(), 1)
+
+    @patch('telegram.views.enviar_mensagem_telegram')
+    def test_telegram_webhook_noticias_success(self, mock_enviar):
+        """Testa se a consulta via webhook (/noticias) atualiza flenvio para True"""
+        # Cria notícias pendentes de envio
+        from noticia.models import Noticia
+        noticia = Noticia.objects.create(
+            dtnoticia="2026-06-18",
+            titulo="Nova Prova",
+            desc_noticia="Prova marcada para dia 25/06",
+            flenvio=False,
+            idturma=self.turma
+        )
+        
+        # Cria o grupo para a turma
+        grupo = TelegramGroup.objects.create(id_telegram=-98765, turma=self.turma, total_membros=2, ativo=True)
+        
+        mock_enviar.return_value = True
+
+        from django.urls import reverse
+        # Dispara o webhook com o comando /noticias vindo do grupo (-98765)
+        payload = {
+            'message': {
+                'chat': {'id': -98765},
+                'text': '/noticias'
+            }
+        }
+        response = self.client.post(
+            reverse('telegram_webhook'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content), {"status": "ok"})
+        
+        # Verifica se enviar_mensagem_telegram foi chamado
+        self.assertTrue(mock_enviar.called)
+        
+        # Verifica se o campo flenvio da notícia foi atualizado para True no banco de dados
+        noticia.refresh_from_db()
+        self.assertTrue(noticia.flenvio)

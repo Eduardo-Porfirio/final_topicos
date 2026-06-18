@@ -39,3 +39,30 @@ def create_telegram_group(turma_nome, users_to_add=None):
     except Exception as e:
         logger.error(f"Erro inesperado na integração com Telethon: {e}")
         return None
+
+
+def remove_telegram_group_member(chat_id, phone_number):
+    """
+    Chama o microserviço Telethon para remover um membro do grupo.
+    URL interna do container: http://telethon_service:8001/remove-member
+    """
+    url = "http://telethon_service:8001/remove-member"
+    payload = {
+        "chat_id": chat_id,
+        "user_phone": phone_number
+    }
+    
+    data = json.dumps(payload).encode('utf-8')
+    req = urllib.request.Request(
+        url, 
+        data=data, 
+        headers={'Content-Type': 'application/json'},
+        method='POST'
+    )
+    
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            return response.status == 200
+    except Exception as e:
+        logger.error(f"Erro de conexão ao remover membro no Telethon: {e}")
+        return False

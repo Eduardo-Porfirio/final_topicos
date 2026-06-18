@@ -9,6 +9,8 @@ import json
 from django.db.models import Q
 from periodo_letivo.models import PeriodoLetivo
 
+from django.core.paginator import Paginator
+
 @login_required
 def list_comp_curricular_view(request):
     # Captura parâmetros da URL
@@ -17,11 +19,11 @@ def list_comp_curricular_view(request):
     periodo_filter = request.GET.get('periodo', '')
 
     # Inicia o queryset base
-    componentes = ComponenteCurricular.objects.all().select_related('idperiodoletivo')
+    componentes_qs = ComponenteCurricular.objects.all().select_related('idperiodoletivo')
 
     # Aplica busca textual (Nome ou Código)
     if search_query:
-        componentes = componentes.filter(
+        componentes_qs = componentes_qs.filter(
             Q(nmcompcurricular__icontains=search_query) | 
             Q(codigo__icontains=search_query)
         )
@@ -29,14 +31,18 @@ def list_comp_curricular_view(request):
     # Aplica filtro de status
     if status_filter:
         is_active = status_filter == '1'
-        componentes = componentes.filter(status=is_active)
+        componentes_qs = componentes_qs.filter(status=is_active)
 
     # Aplica filtro de período
     if periodo_filter:
-        componentes = componentes.filter(idperiodoletivo_id=periodo_filter)
+        componentes_qs = componentes_qs.filter(idperiodoletivo_id=periodo_filter)
 
     # Dados para popular os filtros no template
     periodos = PeriodoLetivo.objects.all().order_by('-dtinicial')
+
+    paginator = Paginator(componentes_qs, 5)
+    page_number = request.GET.get('page')
+    componentes = paginator.get_page(page_number)
 
     context = {
         'componentes': componentes,

@@ -104,6 +104,35 @@
             </tbody>
         </table>
     </div>
+    <!-- Paginação de Logs -->
+    <div class="px-5 py-4 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between font-sans">
+        <span class="text-xs xs:text-sm text-gray-900 mb-2 xs:mb-0">
+            Página {{ ultimos_logs.number }} de {{ ultimos_logs.paginator.num_pages }} (Total de {{ ultimos_logs.paginator.count }} logs)
+        </span>
+        <div class="inline-flex mt-2 xs:mt-0 space-x-2">
+            {% if ultimos_logs.has_previous %}
+                <a href="?page_logs={{ ultimos_logs.previous_page_number }}&page_grupos={{ lista_grupos.number }}&page_turmas={{ turmas_sem_grupo.number }}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Anterior
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Anterior
+                </button>
+            {% endif %}
+            
+            {% if ultimos_logs.has_next %}
+                <a href="?page_logs={{ ultimos_logs.next_page_number }}&page_grupos={{ lista_grupos.number }}&page_turmas={{ turmas_sem_grupo.number }}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Próximo
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Próximo
+                </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <div class="mt-10 bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
@@ -150,6 +179,35 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <!-- Paginação de Turmas Pendentes -->
+    <div class="px-5 py-4 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between font-sans">
+        <span class="text-xs xs:text-sm text-gray-900 mb-2 xs:mb-0">
+            Página {{ turmas_sem_grupo.number }} de {{ turmas_sem_grupo.paginator.num_pages }} (Total de {{ turmas_sem_grupo.paginator.count }} pendentes)
+        </span>
+        <div class="inline-flex mt-2 xs:mt-0 space-x-2">
+            {% if turmas_sem_grupo.has_previous %}
+                <a href="?page_logs={{ ultimos_logs.number }}&page_grupos={{ lista_grupos.number }}&page_turmas={{ turmas_sem_grupo.previous_page_number }}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Anterior
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Anterior
+                </button>
+            {% endif %}
+            
+            {% if turmas_sem_grupo.has_next %}
+                <a href="?page_logs={{ ultimos_logs.number }}&page_grupos={{ lista_grupos.number }}&page_turmas={{ turmas_sem_grupo.next_page_number }}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Próximo
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Próximo
+                </button>
+            {% endif %}
+        </div>
     </div>
 </div>
 
@@ -215,6 +273,35 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <!-- Paginação de Grupos Gerenciados -->
+    <div class="px-5 py-4 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between font-sans">
+        <span class="text-xs xs:text-sm text-gray-900 mb-2 xs:mb-0">
+            Página {{ lista_grupos.number }} de {{ lista_grupos.paginator.num_pages }} (Total de {{ lista_grupos.paginator.count }} grupos)
+        </span>
+        <div class="inline-flex mt-2 xs:mt-0 space-x-2">
+            {% if lista_grupos.has_previous %}
+                <a href="?page_logs={{ ultimos_logs.number }}&page_grupos={{ lista_grupos.previous_page_number }}&page_turmas={{ turmas_sem_grupo.number }}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Anterior
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Anterior
+                </button>
+            {% endif %}
+            
+            {% if lista_grupos.has_next %}
+                <a href="?page_logs={{ ultimos_logs.number }}&page_grupos={{ lista_grupos.next_page_number }}&page_turmas={{ turmas_sem_grupo.number }}" 
+                   class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
+                    Próximo
+                </a>
+            {% else %}
+                <button class="text-sm bg-gray-100 text-gray-400 font-semibold py-2 px-4 rounded cursor-not-allowed" disabled>
+                    Próximo
+                </button>
+            {% endif %}
+        </div>
     </div>
 </div>
 

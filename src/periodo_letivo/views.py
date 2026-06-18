@@ -9,19 +9,25 @@ import json
 
 from django.db.models import Q
 
+from django.core.paginator import Paginator
+
 @login_required
 def list_periodos_view(request):
     search_query = request.GET.get('q', '')
     status_filter = request.GET.get('status', '')
 
-    periodos = PeriodoLetivo.objects.all().order_by('-dtinicial')
+    periodos_qs = PeriodoLetivo.objects.all().order_by('-dtinicial')
 
     if search_query:
-        periodos = periodos.filter(nmperiodo__icontains=search_query)
+        periodos_qs = periodos_qs.filter(nmperiodo__icontains=search_query)
 
     if status_filter:
         is_active = status_filter == '1'
-        periodos = periodos.filter(status=is_active)
+        periodos_qs = periodos_qs.filter(status=is_active)
+
+    paginator = Paginator(periodos_qs, 5)
+    page_number = request.GET.get('page')
+    periodos = paginator.get_page(page_number)
 
     context = {
         'periodos': periodos,

@@ -13,7 +13,18 @@
         Utilize esta ferramenta para enviar mensagens instantâneas e voláteis diretamente para os grupos do Telegram. Ideal para avisos rápidos que não precisam ficar no mural de notícias do SIGAA.
     </p>
 
-    <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Modo Mockup: Integração com API pendente.');">
+    <!-- Exibição de Mensagens de Sucesso ou Erro -->
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="p-4 mb-3 rounded-lg text-sm {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-yellow-50 border border-yellow-200 text-yellow-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form action="{% url 'telegram_disparar_executar' %}" method="POST">
         {% csrf_token %}
         
         <!-- Mensagem -->
@@ -22,52 +33,16 @@
             <textarea id="mensagem" name="mensagem" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Ex: O professor se atrasará 15 minutos para a aula de hoje..." required></textarea>
         </div>
 
-        <!-- Tipo de Alvo -->
+        <!-- Select: Turma -->
         <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Selecionar Público-Alvo</label>
-            <div class="flex items-center space-x-6">
-                <label class="inline-flex items-center">
-                    <input type="radio" name="tipo_alvo" value="turma" class="form-radio text-green-600" onchange="toggleAlvo('turma')" checked>
-                    <span class="ml-2 text-gray-700">Por Turma Específica</span>
-                </label>
-                <label class="inline-flex items-center">
-                    <input type="radio" name="tipo_alvo" value="componente" class="form-radio text-green-600" onchange="toggleAlvo('componente')">
-                    <span class="ml-2 text-gray-700">Por Componente Curricular</span>
-                </label>
-                <label class="inline-flex items-center">
-                    <input type="radio" name="tipo_alvo" value="todos" class="form-radio text-green-600" onchange="toggleAlvo('todos')">
-                    <span class="ml-2 text-gray-700">Todos os Grupos Ativos</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Select Dinâmico: Turma -->
-        <div id="div_alvo_turma" class="mb-6 block">
-            <label for="turma_alvo" class="block text-sm font-medium text-gray-700 mb-2">Turma de Destino</label>
-            <select id="turma_alvo" name="turma_alvo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <label for="turma_alvo" class="block text-sm font-medium text-gray-700 mb-2">Turma de Destino (Grupo do Telegram)</label>
+            <select id="turma_alvo" name="turma_alvo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
                 <option value="">-- Selecione a Turma --</option>
                 {% for turma in turmas %}
-                    <option value="{{ turma.idturma }}">Turma {{ turma.idturma }} ({{ turma.idcompcurricular.nmcompcurricular }})</option>
+                    <option value="{{ turma.idturma }}">Turma {{ turma.idturma }} - {{ turma.idcompcurricular.nmcompcurricular }}</option>
                 {% endfor %}
             </select>
-        </div>
-
-        <!-- Select Dinâmico: Componente -->
-        <div id="div_alvo_componente" class="mb-6 hidden">
-            <label for="componente_alvo" class="block text-sm font-medium text-gray-700 mb-2">Componente Curricular de Destino</label>
-            <select id="componente_alvo" name="componente_alvo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option value="">-- Selecione o Componente --</option>
-                {% for comp in componentes %}
-                    <option value="{{ comp.idcompcurricular }}">{{ comp.codigo }} - {{ comp.nmcompcurricular }}</option>
-                {% endfor %}
-            </select>
-            <p class="text-xs text-gray-500 mt-1">A mensagem será enviada para todas as turmas que pertencem a este componente.</p>
-        </div>
-
-        <!-- Aviso Todos -->
-        <div id="div_alvo_todos" class="mb-6 hidden bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-4 text-sm flex items-start">
-            <svg class="w-5 h-5 mr-2 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            Atenção: Esta mensagem será disparada para TODOS os alunos em TODOS os grupos ativos do semestre letivo atual. Use com cautela.
+            <p class="text-xs text-gray-500 mt-1">Apenas as turmas que possuem grupos do Telegram configurados no sistema são exibidas na lista.</p>
         </div>
 
         <div class="mt-8 flex justify-end space-x-4">
@@ -81,32 +56,4 @@
         </div>
     </form>
 </div>
-
-<script>
-    function toggleAlvo(tipo) {
-        const divTurma = document.getElementById('div_alvo_turma');
-        const divComponente = document.getElementById('div_alvo_componente');
-        const divTodos = document.getElementById('div_alvo_todos');
-
-        // Reset
-        divTurma.classList.add('hidden');
-        divTurma.classList.remove('block');
-        divComponente.classList.add('hidden');
-        divComponente.classList.remove('block');
-        divTodos.classList.add('hidden');
-        divTodos.classList.remove('block');
-
-        // Ativar o selecionado
-        if (tipo === 'turma') {
-            divTurma.classList.remove('hidden');
-            divTurma.classList.add('block');
-        } else if (tipo === 'componente') {
-            divComponente.classList.remove('hidden');
-            divComponente.classList.add('block');
-        } else if (tipo === 'todos') {
-            divTodos.classList.remove('hidden');
-            divTodos.classList.add('block');
-        }
-    }
-</script>
 {% endblock %}

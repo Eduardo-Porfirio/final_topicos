@@ -137,3 +137,7 @@ LOGIN_URL = "login"
 
 # Configurações do Bot do Telegram
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.trycloudflare.com",
+]

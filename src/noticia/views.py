@@ -11,25 +11,31 @@ import json
 from django.db.models import Q
 from turma.models import Turma
 
+from django.core.paginator import Paginator
+
 @login_required
 def list_noticias_view(request):
     search_query = request.GET.get('q', '')
     status_filter = request.GET.get('status', '')
     turma_filter = request.GET.get('turma', '')
 
-    noticias = Noticia.objects.all().select_related('idturma', 'idturma__idcompcurricular').order_by('-dtnoticia')
+    noticias_qs = Noticia.objects.all().select_related('idturma', 'idturma__idcompcurricular').order_by('-dtnoticia')
 
     if search_query:
-        noticias = noticias.filter(titulo__icontains=search_query)
+        noticias_qs = noticias_qs.filter(titulo__icontains=search_query)
 
     if status_filter:
         is_sent = status_filter == '1'
-        noticias = noticias.filter(flenvio=is_sent)
+        noticias_qs = noticias_qs.filter(flenvio=is_sent)
 
     if turma_filter:
-        noticias = noticias.filter(idturma_id=turma_filter)
+        noticias_qs = noticias_qs.filter(idturma_id=turma_filter)
 
     turmas = Turma.objects.all().select_related('idcompcurricular').order_by('idturma')
+
+    paginator = Paginator(noticias_qs, 5)
+    page_number = request.GET.get('page')
+    noticias = paginator.get_page(page_number)
 
     context = {
         'noticias': noticias,

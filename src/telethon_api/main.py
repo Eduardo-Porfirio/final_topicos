@@ -118,6 +118,19 @@ async def create_group(request: GroupCreateRequest):
         if not chat_id:
             raise Exception("Erro crítico: Grupo criado, mas não foi possível extrair o ID do Chat.")
 
+        # Promove o bot de gestão (@portal_sigaa_bot) a administrador para que ele possa gerenciar o grupo
+        from telethon.tl.functions.messages import EditChatAdminRequest
+        try:
+            bot_username = "@portal_sigaa_bot"
+            await client(EditChatAdminRequest(
+                chat_id=chat_id,
+                user_id=bot_username,
+                is_admin=True
+            ))
+            print(f"Bot {bot_username} promovido a administrador do grupo {chat_id}")
+        except Exception as e:
+            print(f"Não foi possível promover o bot {bot_username} a administrador: {e}")
+
         # Agora tenta adicionar os usuários restantes (telefones, etc)
         from telethon.tl.functions.messages import AddChatUserRequest
         
@@ -147,3 +160,29 @@ async def health_check():
         "connected": client.is_connected(), 
         "authorized": await client.is_user_authorized()
     }
+
+
+class MemberRemoveRequest(BaseModel):
+    chat_id: int
+    user_phone: str
+
+
+@app.post("/remove-member")
+async def remove_member(request: MemberRemoveRequest):
+    if not await client.is_user_authorized():
+        raise HTTPException(status_code=401, detail="UserBot não autorizado.")
+    try:
+        from telethon.tl.functions.messages import DeleteChatUserRequest
+        
+        # O chat_id no Telethon para normal group deve ser positivo
+        chat_id_telethon = abs(request.chat_id)
+        
+        await client(DeleteChatUserRequest(
+            chat_id=chat_id_telethon,
+            user_id=request.user_phone
+        ))
+        return {"status": "success", "message": f"Usuário {request.user_phone} removido do chat {chat_id_telethon}"}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

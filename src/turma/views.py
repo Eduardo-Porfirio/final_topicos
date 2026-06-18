@@ -6,29 +6,35 @@ from .forms import TurmaForm
 from django.db.models import Q
 from comp_curricular.models import ComponenteCurricular
 
+from django.core.paginator import Paginator
+
 @login_required
 def list_turmas_view(request):
     search_query = request.GET.get('q', '')
     status_filter = request.GET.get('status', '')
     comp_filter = request.GET.get('componente', '')
 
-    turmas = Turma.objects.all().select_related('idcompcurricular')
+    turmas_qs = Turma.objects.all().select_related('idcompcurricular')
 
     if search_query:
         # Busca por matrícula ou nome do componente
-        turmas = turmas.filter(
+        turmas_qs = turmas_qs.filter(
             Q(matricula__icontains=search_query) | 
             Q(idcompcurricular__nmcompcurricular__icontains=search_query)
         )
 
     if status_filter:
         is_active = status_filter == '1'
-        turmas = turmas.filter(flstatus=is_active)
+        turmas_qs = turmas_qs.filter(flstatus=is_active)
 
     if comp_filter:
-        turmas = turmas.filter(idcompcurricular_id=comp_filter)
+        turmas_qs = turmas_qs.filter(idcompcurricular_id=comp_filter)
 
     componentes = ComponenteCurricular.objects.all().order_by('nmcompcurricular')
+
+    paginator = Paginator(turmas_qs, 5)
+    page_number = request.GET.get('page')
+    turmas = paginator.get_page(page_number)
 
     context = {
         'turmas': turmas,
@@ -75,9 +81,23 @@ def delete_turma_view(request, pk):
 @login_required
 def list_alunos_by_turma_view(request, pk):
     turma = get_object_or_404(Turma, pk=pk)
-    alunos = turma.alunos.all()
+    alunos_qs = turma.alunos.all().order_by('nmaluno')
+    
+    paginator = Paginator(alunos_qs, 5)
+    page_number = request.GET.get('page')
+    alunos = paginator.get_page(page_number)
+    
     context = {
         'turma': turma,
         'alunos': alunos
     }
     return render(request, 'turma/alunos_list.html', context)
+
+
+@login_required
+def toggle_aluno_status_view(request, matricula):
+    from aluno.models import Aluno
+    aluno = get_object_or_404(Aluno, pk=matricula)
+    aluno.flstatus = not aluno.flstatus
+    aluno.save()
+    return redirect('list_alunos_by_turma', pk=aluno.idturma.idturma)
