@@ -48,7 +48,7 @@ anotacao.sh
 # IntelliJ
 out/
 
-/src/bot_session.session
+/src/*.session
 # JIRA plugin
 atlassian-ide-plugin.xml
 

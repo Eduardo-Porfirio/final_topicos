@@ -9,6 +9,11 @@
 3. Se a instrução envolver alterações na infraestrutura (como regras de Nginx ou certificados SSL), forneça apenas os comandos de diagnóstico primeiro. Não gere comandos de reinício de serviço (`systemctl restart`) sem que eu peça explicitamente.
 4. Seja especifico nas alterações em código do ambiente, não gere código desnecessário ou fora do escopo do projeto
 
+# Segurança e Uso do Telegram (UserBot)
+5. **Prevenção de Banimento:** O UserBot utiliza um número de telefone pessoal. NUNCA realize disparos em massa, loops de criação de grupos ou requisições repetitivas que possam ser interpretadas como spam pelo Telegram.
+6. **Prioridade para Mocks:** Em ambiente de desenvolvimento e testes unitários, SEMPRE utilize mocks para simular a API do Telegram/Telethon. Evite acionar a API real desnecessariamente.
+7. **Limitação de Criação:** A criação real de grupos deve ser feita apenas para validação final ou sob demanda explícita do usuário.
+
 # Padrões de Ambiente
 - Assuma que o usuário do terminal no servidor é `root`.
 - O diretório final_topicos está mapeado para dentro do container no `/app`, duvidas confira o arquivo `docker-compose.yml` e `dockerfile` na raiz do projeto

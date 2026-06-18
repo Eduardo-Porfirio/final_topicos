@@ -84,3 +84,46 @@ Quando um professor "abre" uma turma no sistema, o seguinte fluxo acontece:
 ---
 *Notas:* O projeto segue em ambiente acadêmico com `@csrf_exempt` habilitado para facilitar testes locais via Docker.
 
+## [2026-06-18] - Implementação e Ativação da Integração Django-Telethon (Real)
+
+### Automação de Fluxo (Signals)
+- **Criação Automática de Grupos:** Implementado o *Django Signal* `post_save` no modelo `Turma`. Agora, a criação de uma nova turma no sistema dispara automaticamente uma solicitação ao microserviço Telethon para gerar um grupo correspondente no Telegram.
+- **Registro de Vínculo:** O sistema agora captura o `chat_id` real retornado pelo Telegram e o persiste automaticamente no modelo `TelegramGroup`, eliminando a necessidade de cadastro manual de IDs de chat.
+- **Auditoria Automática:** Cada criação de grupo gera um registro no `TelegramAuditLog`, detalhando o sucesso ou falha da operação.
+
+### Microserviço Telethon (UserBot)
+- **Migração para UserBot:** O microserviço foi refatorado para operar como um usuário real (UserBot) em vez de um Bot convencional. Isso resolveu o erro `BotMethodInvalidError` e permitiu a criação de grupos via API (CreateChatRequest).
+- **Autenticação Segura:** Implementado fluxo de login em dois passos (`request-code` e `login`) para autorizar a conta pessoal via código SMS.
+- **Persistência de Sessão:** A sessão do usuário é persistida no arquivo `userbot_session.session`, garantindo que o serviço permaneça autenticado após reinicializações.
+- **Extração Resiliente de ID:** Implementada lógica avançada de extração de `chat_id` para suportar diferentes tipos de objetos de retorno do Telegram (`Updates`, `InvitedUsers`), garantindo que o ID correto seja sempre enviado de volta ao Django.
+
+### Camada de Serviço (Services)
+- **Novo Arquivo `services.py`:** Toda a lógica de comunicação HTTP entre Django e Telethon foi isolada em `src/telegram/services.py`, utilizando a biblioteca nativa `urllib.request` (zero dependências externas).
+
+### Segurança e Proteção de Dados
+- **Proteção de Credenciais:** Removidos todos os logs e prints que exibiam dados sensíveis (Telefone, API_ID) no console.
+- **Configuração via .env:** Todas as chaves críticas (`API_ID`, `API_HASH`, `TELEGRAM_PHONE`) são lidas estritamente de variáveis de ambiente.
+- **Git Hygiene:** Atualizado o `.gitignore` para bloquear o commit acidental de arquivos de sessão do Telethon (`*.session`).
+
+## [2026-06-18] - Transição para Criação Manual e Gestão de Membros
+
+### Mudança de Estratégia (Manual vs Automático)
+- **Desativação de Signals:** Removido o gatilho automático de criação de grupos em `src/turma/signals.py` (desativado em `apps.py`). Isso evita a criação indesejada de dezenas de grupos durante o carregamento de *fixtures* (`loaddata`) e protege o número pessoal do usuário contra banimentos por excesso de requisições.
+- **Botão de Ação Manual:** Implementada nova interface no dashboard de gerenciamento que lista "Turmas Pendentes de Grupo". Cada turma possui agora um botão "Criar Grupo & Add Alunos".
+
+### Refatoração de Modelos e Alunos
+- **Correção do Modelo Aluno:** Adicionada a `ForeignKey` `idturma` ao modelo `Aluno` em `src/aluno/models.py`. Esta alteração alinha o código com as *fixtures* existentes e permite que múltiplos alunos sejam vinculados a uma única turma.
+- **Sincronização de Banco:** Executadas migrações para refletir o novo relacionamento entre Aluno e Turma.
+
+### Inteligência de Membros (Telethon)
+- **Adição Automática de Alunos:** A view de criação manual agora busca todos os alunos vinculados à turma, limpa e formata seus números de telefone (adicionando prefixo +55) e envia a lista para o microserviço Telethon.
+- **Criação com Convite:** O grupo é criado já incluindo os alunos cadastrados no sistema como membros iniciais.
+
+### Dashboard e Testes
+- **Interface Evoluída:** O dashboard agora exibe estatísticas em tempo real de turmas sem grupo e o número de alunos cadastrados em cada uma.
+- **Suíte de Testes Atualizada:** Os testes em `src/telegram/tests.py` foram totalmente refatorados para validar o novo fluxo manual, garantindo que a busca de alunos e a comunicação com o Telethon funcionem conforme o esperado.
+
+### Validação e Testes
+- **Testes Unitários:** Criada suíte de testes em `src/telegram/tests.py` utilizando *mocks* para simular a API do Telethon.
+- **Verificação Ponta a Ponta:** Realizados testes reais criando turmas via shell e admin, confirmando a criação física dos grupos no Telegram e a persistência correta dos dados no PostgreSQL.
+

@@ -71,3 +71,13 @@ def delete_turma_view(request, pk):
         turma.delete()
         return redirect('list_turmas')
     return render(request, 'turma/confirm_delete.html', {'obj': turma})
+
+@login_required
+def list_alunos_by_turma_view(request, pk):
+    turma = get_object_or_404(Turma, pk=pk)
+    alunos = turma.alunos.all()
+    context = {
+        'turma': turma,
+        'alunos': alunos
+    }
+    return render(request, 'turma/alunos_list.html', context)

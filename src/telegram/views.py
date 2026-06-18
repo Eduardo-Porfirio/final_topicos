@@ -1,6 +1,7 @@
 import json
 import urllib.request
-from django.shortcuts import render, redirect
+import re
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .models import TelegramGroup, TelegramAuditLog, TelegramSettings
 from .forms import TelegramSettingsForm
+from .services import create_telegram_group
 from turma.models import Turma
 from comp_curricular.models import ComponenteCurricular
 from noticia.models import Noticia
@@ -26,6 +28,9 @@ def telegram_management_view(request):
     # Busca a lista de grupos para a tabela
     lista_grupos = TelegramGroup.objects.all().order_by('-data_criacao')
     
+    # Turmas que ainda não tem grupo associado
+    turmas_sem_grupo = Turma.objects.filter(telegram_group__isnull=True)
+    
     # Verifica se o bot_token está configurado no BD ou no .env
     configuracao = TelegramSettings.get_settings()
     api_configurada = bool(configuracao.bot_token) or bool(settings.TELEGRAM_BOT_TOKEN)
@@ -37,9 +42,68 @@ def telegram_management_view(request):
         'grupos_ativos': grupos_ativos,
         'ultimos_logs': ultimos_logs,
         'lista_grupos': lista_grupos,
+        'turmas_sem_grupo': turmas_sem_grupo,
         'api_configurada': api_configurada,
     }
     return render(request, 'telegram/management.html', context)
+
+@login_required
+@require_http_methods(["POST"])
+def create_group_for_turma_view(request, turma_id):
+    """
+    Acionada via botão manual no dashboard.
+    Busca os alunos da turma, limpa os números e solicita a criação do grupo.
+    """
+    turma = get_object_or_404(Turma, pk=turma_id)
+    
+    if hasattr(turma, 'telegram_group'):
+        messages.warning(request, f"A turma {turma} já possui um grupo de Telegram.")
+        return redirect('telegram_management')
+    
+    # Busca alunos vinculados e formata números de telefone
+    alunos = turma.alunos.all()
+    users_to_add = []
+    for aluno in alunos:
+        # Remove caracteres não numéricos
+        phone = re.sub(r'\D', '', aluno.num_telefone)
+        if phone:
+            # Garante o prefixo +55 (Brasil) se não houver
+            if not phone.startswith('55'):
+                phone = '55' + phone
+            users_to_add.append('+' + phone)
+    
+    nome_grupo = f"Turma {turma.idturma} - {turma.idcompcurricular.nmcompcurricular}"
+    
+    # Chama o microserviço Telethon
+    resultado = create_telegram_group(nome_grupo, users_to_add=users_to_add)
+    
+    if resultado and resultado.get('status') == 'success':
+        chat_id = resultado.get('chat_id')
+        
+        # Cria o registro do grupo no Django
+        grupo = TelegramGroup.objects.create(
+            id_telegram=chat_id,
+            turma=turma,
+            total_membros=len(users_to_add),
+            ativo=True
+        )
+        
+        TelegramAuditLog.objects.create(
+            tipo='GRP',
+            telegram_group=grupo,
+            descricao=f"Grupo criado MANUALMENTE para {turma}. {len(users_to_add)} membros convidados.",
+            sucesso=True
+        )
+        messages.success(request, f"Grupo criado com sucesso no Telegram! ID: {chat_id}")
+    else:
+        TelegramAuditLog.objects.create(
+            tipo='GRP',
+            descricao=f"Falha na criação MANUAL do grupo para a Turma {turma.idturma}",
+            sucesso=False
+        )
+        messages.error(request, "Erro ao criar o grupo. Verifique se o microserviço Telethon está logado e ativo.")
+        
+    return redirect('telegram_management')
 
 @login_required
 def telegram_disparos_view(request):
